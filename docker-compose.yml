@@ -1,0 +1,15 @@
+version: '3.1'
+
+services:
+  Task_pg:
+    image: postgres:15.1
+    container_name: Task_pg
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: Task
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
