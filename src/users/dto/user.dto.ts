@@ -1,6 +1,8 @@
-import { IsNotEmpty} from "class-validator";
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator/types/decorator/decorators";
-import { ROLES } from "src/constants/roles";
+import { IsNotEmpty, IsUUID} from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { ACCES_LEVEL, ROLES } from "src/constants/roles";
+import { ProjectsEntity } from "src/projects/entities/projects.entity";
+import { UsersEntity } from "../entities/users.entity";
 
 export class UserDto{
     @IsNotEmpty()
@@ -53,11 +55,25 @@ export class UserUpdateDto{
     @IsString()
     password: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsNumber()
     age: number;
 
+    @IsOptional()
     @IsEnum(ROLES)
-    @IsNotEmpty()
     role: ROLES;
+}
+
+export class UserToProjectDto{
+    @IsNotEmpty()
+    @IsUUID()
+    user: UsersEntity;
+
+    @IsNotEmpty()
+    @IsUUID()
+    project: ProjectsEntity;
+
+    @IsNotEmpty()
+    @IsEnum(ACCES_LEVEL)
+    acccesLevel: ACCES_LEVEL;
 }
