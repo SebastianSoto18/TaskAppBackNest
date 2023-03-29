@@ -1,11 +1,16 @@
 import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
-import { Delete } from "@nestjs/common/decorators";
+import { Delete, UseGuards } from "@nestjs/common/decorators";
+import { AccessLevel } from "src/auth/decorator/access-level.decorator";
+import { AccessLevelGuard } from "src/auth/guards/access-level.guard";
+import { AuthGuard } from "src/auth/guards/auth.guard";
+import { RolesGuard } from "src/auth/guards/roles.guard";
 import { ProjectDto, UpdateProjectDto } from "../dto/project.dto";
 import { ProjectsService } from "../services/projects.service";
 
 
 
 @Controller('projects')
+@UseGuards(AuthGuard,RolesGuard,AccessLevelGuard)
 export class ProjectsController{
     constructor(private readonly projectsService: ProjectsService) { }
 
@@ -25,6 +30,7 @@ export class ProjectsController{
     }
 
     @Put(':id')
+    @AccessLevel(50)
     public async UpdateProject(@Param('id') id: string, @Body() body: UpdateProjectDto): Promise<any> {
         return await this.projectsService.UpdateProject(id, body);
     }
