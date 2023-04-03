@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ACCES_LEVEL } from 'src/constants/roles';
+import { UsersProjectsEntity } from 'src/users/entities/usersProjects.entity';
+import { UsersService } from 'src/users/services/users.service';
 import { ErrorManager } from 'src/utils/error.manager';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { ProjectDto, UpdateProjectDto } from "../dto/project.dto";
@@ -7,13 +10,21 @@ import { ProjectsEntity } from "../entities/projects.entity";
 
 @Injectable()
 export class ProjectsService{
-    constructor(@InjectRepository(ProjectsEntity) private readonly projectsRepository: Repository<ProjectsEntity>) { 
-
+    constructor(@InjectRepository(ProjectsEntity) private readonly projectsRepository: Repository<ProjectsEntity>,
+    @InjectRepository(UsersProjectsEntity) private readonly userProjectsRepository: Repository<UsersProjectsEntity>,
+    private readonly userService: UsersService) { 
     }
 
-    public async CreateProject (body : ProjectDto): Promise<ProjectsEntity>{
+    public async CreateProject (body : ProjectDto, id:string): Promise<any>{
         try{
-            return await this.projectsRepository.save(body);
+            const user = await this.userService.FindUserById(id);
+            const project = await this.projectsRepository.save(body)
+            return await this.userProjectsRepository.save({
+                acccesLevel: ACCES_LEVEL.OWNER,
+                user: user,
+                project: project
+            }
+            )
         }catch(error){
             throw ErrorManager.createError(error.message);
         }

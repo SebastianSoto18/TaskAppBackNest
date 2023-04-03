@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { ACCES_LEVEL_KEY, ADMIN_KEY, PUBLIC_KEY, ROLES_KEY } from 'src/constants/key-decorators';
-import { ROLES } from 'src/constants/roles';
+import { ACCES_LEVEL, ROLES } from 'src/constants/roles';
 import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
@@ -36,13 +36,15 @@ export class AccessLevelGuard implements CanActivate {
       }
     }
 
+    if(roleUser === ROLES.ADMIN || roleUser == ROLES.CREATOR )return true;
+
     const user = await this.userService.FindUserById(idUser);
 
     const userExistInProject = user.projectsInclude.find((project) => project.project.id === request.params.id);
 
     if(!userExistInProject)throw new UnauthorizedException('you are not in this project');
     
-    if(userExistInProject.acccesLevel !== access_level){
+    if(ACCES_LEVEL[access_level] > ACCES_LEVEL[userExistInProject.acccesLevel]){
       throw new UnauthorizedException('you are not authorized to this project')
     }
     

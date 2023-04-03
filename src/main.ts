@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import  *  as morgan from 'morgan';
 import { CORS } from './constants';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,13 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.enableCors(CORS);
   app.setGlobalPrefix('api');
+  const config = new DocumentBuilder()
+    .setTitle('Tareas API')
+    .setDescription('Api para la gestion de integrantes, tareas y proyectos')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
   await app.listen(configService.get('PORT'));
   console.log(`app running on port: ${await app.getUrl()} `);
 }
